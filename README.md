@@ -1,7 +1,13 @@
 # Ioannis Bekas mascot
 
-A handmade-felt-puppet version of me, generated with [Higgsfield](https://higgsfield.ai). It stars in my portfolio at
-[ioannisbekas.github.io](https://ioannisbekas.github.io/), where each section plays one short scene.
+A handmade-felt-puppet version of me, generated with [Higgsfield](https://higgsfield.ai).
+
+This repo is also my website:
+
+- **Portfolio:** [ioannisbekas.github.io/ioannis-Bekas-mascot](https://ioannisbekas.github.io/ioannis-Bekas-mascot/). Each section plays one short puppet scene.
+- **Mascot kit:** [/kit/](https://ioannisbekas.github.io/ioannis-Bekas-mascot/kit/), with the character sheet, looping scenes and downloads.
+
+The old address, ioannisbekas.github.io, redirects here.
 
 ![Character](docs/character.jpg)
 
@@ -38,6 +44,8 @@ The puppet always stays in the left third so text fits on the right, and the cam
 ## Files
 
 ```
+index.html   portfolio site (with styles.css, main.js, 404.html, media/) — no build step
+kit/         mascot showcase page
 character/   master, turnaround sheet, avatar (square), shrug (404 page)
 keyframes/   final start/end frames, background already flattened to #f5f5f5
 video/raw/   Kling 3.0 Pro output, 1928×1076, as generated

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Page not found | Ioannis Bekas</title>
+  <meta name="color-scheme" content="light">
+  <link rel="icon" type="image/png" href="/ioannis-Bekas-mascot/media/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg: #f5f5f5; --ink: #1a1a1a; --muted: #6b6b6b; color-scheme: light; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; min-height: 100svh;
+      display: grid; place-items: center;
+      background: var(--bg); color: var(--ink);
+      font-family: "Quicksand", system-ui, sans-serif; font-weight: 500;
+    }
+    main { display: flex; align-items: center; gap: clamp(16px, 4vw, 64px); padding: 24px 16px; max-width: 1100px; }
+    img { width: min(420px, 42vw); height: auto; }
+    h1 { margin: 0 0 12px; font-size: clamp(34px, 5vw, 64px); line-height: 1.05; letter-spacing: -0.03em; }
+    p { margin: 0 0 28px; color: var(--muted); font-size: 19px; }
+    a {
+      display: inline-block; padding: 12px 24px; border-radius: 999px;
+      background: var(--ink); color: #fff; font-weight: 700; text-decoration: none;
+    }
+    @media (max-width: 640px) { main { flex-direction: column; text-align: center; } img { width: min(300px, 80vw); } }
+  </style>
+</head>
+<body>
+  <main>
+    <img src="/ioannis-Bekas-mascot/media/img/shrug.webp" alt="Puppet Ioannis shrugging" width="900" height="1125">
+    <div>
+      <h1>This page wandered off.</h1>
+      <p>404: nothing to see here. Probably a data-quality issue.</p>
+      <a href="/ioannis-Bekas-mascot/">Back to the start</a>
+    </div>
+  </main>
+</body>
+</html>
