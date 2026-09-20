@@ -191,15 +191,19 @@ main { position: relative; z-index: 1; }
   letter-spacing: -0.03em;
 }
 .hero-title span { display: block; }
-.hero-meta { margin-top: clamp(48px, 9vh, 110px); }
+.hero-sub { margin: 24px 0 0 auto; max-width: 46ch; font-size: clamp(16px, 1.25vw, 19px); color: #3a3a3a; }
+.hero-meta { margin-top: clamp(32px, 6vh, 80px); }
 .hero-name { margin: 0; font-size: clamp(24px, 2.2vw, 34px); font-weight: 700; letter-spacing: -0.02em; }
 .hero-role { margin: 4px 0 0; display: flex; justify-content: flex-end; gap: 40px; color: var(--muted); font-size: 17px; }
+.hero-stack { margin: 10px 0 0; font-size: 14px; font-weight: 600; color: var(--faint); }
 
 .hero-title span,
 .hero-hi,
+.hero-sub,
 .hero-meta {
   animation: rise .9s var(--ease) both;
 }
+.hero-sub { animation-delay: .5s; }
 .hero-title span:nth-child(1) { animation-delay: .15s; }
 .hero-title span:nth-child(2) { animation-delay: .3s; }
 .hero-title span:nth-child(3) { animation-delay: .45s; }
@@ -326,18 +330,23 @@ main { position: relative; z-index: 1; }
   list-style: none;
   display: flex;
   flex-wrap: wrap;
-  gap: 10px 28px;
+  gap: 10px;
   margin: 0;
   padding: 0;
 }
+/* A credibility bar of names. Text, not logos: these are other organisations' trademarks. */
 .wordmarks li {
-  font-size: 19px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .7);
+  box-shadow: inset 0 0 0 1px var(--line);
+  font-size: 17px;
   font-weight: 700;
-  color: var(--faint);
+  color: #8d8d8d;
   letter-spacing: -0.01em;
-  transition: color .2s;
+  transition: color .2s, box-shadow .2s;
 }
-.wordmarks li:hover { color: var(--ink); }
+.wordmarks li:hover { color: var(--ink); box-shadow: inset 0 0 0 1px #b9b9b9; }
 
 /* Talks & writing */
 .talks { list-style: none; margin: 0; padding: 0; }
@@ -411,7 +420,21 @@ main { position: relative; z-index: 1; }
 
 /* Contact */
 .section--contact .section-inner { margin-left: 52%; width: 48%; }
-.end-sub { margin: -24px 0 48px; font-size: clamp(20px, 1.8vw, 26px); color: var(--muted); }
+.end-sub { margin: -24px 0 28px; font-size: clamp(18px, 1.6vw, 23px); color: var(--muted); max-width: 40ch; }
+.cta { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 8px; }
+.cta-btn {
+  display: inline-block;
+  padding: 14px 26px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform .2s var(--ease);
+}
+.cta-btn--ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink); }
+.cta-btn:hover { transform: translateY(-2px); }
+.dd-note { margin-left: 10px; font-size: 13px; font-weight: 600; color: var(--faint); white-space: nowrap; }
 .contact { margin: 0; }
 .contact dt { font-size: 15px; color: var(--muted); margin-top: 22px; }
 .contact dd { margin: 2px 0 0; font-size: clamp(22px, 2vw, 30px); font-weight: 700; letter-spacing: -0.015em; overflow-wrap: anywhere; }
@@ -430,23 +453,6 @@ main { position: relative; z-index: 1; }
 .contact .socials a:hover { transform: translateY(-3px); }
 .socials svg { width: 22px; height: 22px; fill: currentColor; }
 
-.cv-button {
-  position: absolute;
-  right: var(--gutter);
-  bottom: 32px;
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 22px 8px 8px;
-  border-radius: 999px;
-  background: #fff;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .12);
-  font-weight: 700;
-  text-decoration: none;
-  transition: transform .2s var(--ease);
-}
-.cv-button:hover { transform: translateY(-2px); }
-.cv-icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--ink); color: #fff; }
 
 /* ---------- Mobile & tablet ---------- */
 @media (max-width: 1023px) {
@@ -515,8 +521,14 @@ main { position: relative; z-index: 1; }
   .tl-year { grid-row: auto; padding-top: 0; }
   .stack { margin: 0 auto; }
   .stack-next { display: block; margin: 20px auto 0; }
-  .cv-button { position: fixed; bottom: 16px; right: 16px; z-index: 20; opacity: 0; pointer-events: none; transition: opacity .3s; }
-  .show-cv .cv-button { opacity: 1; pointer-events: auto; }
+  .hero-sub { margin-right: 0; font-size: 16px; }
+  /* The stack line would sit over the puppet here; the About section lists the same tools. */
+  .hero-stack { display: none; }
+  .hero-role { flex-wrap: wrap; gap: 2px 16px; }
+  .cta-btn { flex: 1 1 auto; text-align: center; padding: 12px 20px; }
+  .cta { margin-bottom: 2px; }
+  .section--contact .section-title { font-size: clamp(30px, 8vw, 38px); }
+  .end-sub { font-size: 16px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

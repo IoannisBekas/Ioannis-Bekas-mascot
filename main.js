@@ -18,6 +18,18 @@
     return `media/img/scene${scene}${MOBILE.matches ? '_m' : ''}_first.jpg`;
   }
 
+  // Only the hero clip loads with the page; the rest are attached shortly before they are needed,
+  // so the first paint stays light on mobile data. Each poster stands in until its clip is ready.
+  function attach(scene) {
+    const video = layers.get(scene)?.querySelector('video');
+    if (!video || REDUCED.matches) return;
+    const src = srcFor(scene);
+    if (!video.src.endsWith(src)) {
+      video.src = src;
+      video.load();
+    }
+  }
+
   function loadSources() {
     layers.forEach((layer, scene) => {
       const video = layer.querySelector('video');
@@ -25,14 +37,30 @@
       if (REDUCED.matches) {
         video.removeAttribute('src');
         video.load();
-        return;
-      }
-      const src = srcFor(scene);
-      if (!video.src.endsWith(src)) {
-        video.src = src;
-        video.load();
+      } else if (scene === '1' || video.src) {
+        attach(scene);
       }
     });
+  }
+
+  // Warm the remaining clips once the page is idle, one at a time, in scroll order.
+  function prefetchRest() {
+    if (REDUCED.matches) return;
+    // On data-saver or a slow connection, let the nearby-section observer do the loading instead.
+    const net = navigator.connection;
+    if (net && (net.saveData || /^([23]g|slow-2g)$/.test(net.effectiveType || ''))) return;
+    const queue = [...document.querySelectorAll('.section[data-scene]')].map((s) => s.dataset.scene).filter((s) => s !== '1');
+    const next = () => {
+      const scene = queue.shift();
+      if (!scene) return;
+      const video = layers.get(scene)?.querySelector('video');
+      if (!video) return next();
+      if (video.readyState >= 3) return next();
+      video.addEventListener('canplaythrough', next, { once: true });
+      video.addEventListener('error', next, { once: true });
+      attach(scene);
+    };
+    next();
   }
 
   function playScene(scene) {
@@ -53,6 +81,8 @@
 
   loadSources();
   playScene('1');
+  const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 1200));
+  window.addEventListener('load', () => idle(prefetchRest));
   MOBILE.addEventListener('change', () => { loadSources(); playScene(activeScene); });
   REDUCED.addEventListener('change', () => { loadSources(); playScene(activeScene); });
 
@@ -66,10 +96,15 @@
       const section = entry.target;
       setScene(section.dataset.scene);
       navLinks.forEach((a) => a.setAttribute('aria-current', String(a.hash === `#${section.id}`)));
-      document.body.classList.toggle('show-cv', section.id === 'contact');
     });
   }, { rootMargin: '-45% 0px -45% 0px' });
   sections.forEach((s) => observer.observe(s));
+
+  // A section within one screen of the viewport gets its clip attached now, ahead of the prefetch queue.
+  const nearby = new IntersectionObserver((entries) => {
+    entries.forEach((e) => e.isIntersecting && attach(e.target.dataset.scene));
+  }, { rootMargin: '100% 0px 100% 0px' });
+  sections.forEach((s) => nearby.observe(s));
 
   // ---------- Mobile menu ----------
   const toggle = document.querySelector('.menu-toggle');
