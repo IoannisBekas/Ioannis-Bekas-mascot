@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Climate Contribution Evidence Engine — How it works | Ioannis Bekas</title>
+  <meta name="description" content="An AI research pipeline for the University of Zurich that reads sustainability reports, annual reports and SEC 10-K filings and turns them into structured, source-linked evidence.">
+  <meta name="color-scheme" content="light">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Climate Contribution Evidence Engine — How it works">
+  <meta property="og:description" content="An AI research pipeline for the University of Zurich that reads sustainability reports, annual reports and SEC 10-K filings and turns them into structured, source-linked evidence.">
+  <meta property="og:image" content="https://ioannisbekas.github.io/ioannis-Bekas-mascot/media/img/og.jpg">
+  <link rel="canonical" href="https://ioannisbekas.github.io/ioannis-Bekas-mascot/projects/climate-evidence-engine.html">
+  <link rel="icon" type="image/png" href="../media/img/favicon.png">
+  <link rel="apple-touch-icon" href="../media/img/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="article.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="mark" href="../">ioannis.</a>
+      <a class="back" href="../#work">← All projects</a>
+    </header>
+
+    <div class="art-header">
+      <p class="kicker">AI Engineering · Case study · 2026</p>
+      <h1>Climate Contribution Evidence Engine (CC-EE)</h1>
+      <p class="art-lead">An AI research pipeline for the University of Zurich that reads sustainability reports, annual reports and SEC 10-K filings and turns them into structured, source-linked evidence.</p>
+      <ul class="art-meta">
+        <li>University of Zurich, Department of Finance</li>
+        <li>LLM-as-judge</li>
+        <li>Hybrid RAG</li>
+        <li>ClimateBERT</li>
+        <li>Econometrics</li>
+        <li>Python</li>
+      </ul>
+    </div>
+
+    <div class="art-body">
+      <p>From an AI engineering perspective, the Climate Contribution Evidence Engine (CC-EE) is an end-to-end, reproducible data engineering and natural language processing (NLP) pipeline designed to extract, grade, and econometrically analyze corporate climate disclosures at scale. The project processes unstructured corporate PDF sustainability reports and SEC 10-K filings across hundreds of European and U.S. companies, converting hundreds of thousands of document pages into structured, auditable data. It achieves this by combining layout-aware document parsing, a hybrid Retrieval-Augmented Generation (RAG) architecture, Large Language Model (LLM-as-a-Judge) diagnostic scoring, and financial entity linkage to test how corporate climate disclosure quality correlates with financial fundamentals like firm size, capital expenditure (CapEx), leverage, and profitability.</p>
+
+      <p>At the ingestion layer, detailed in <code>parser.py</code>, the system handles complex multi-column PDF layouts using PyMuPDF for structural geometry extraction alongside EasyOCR for image-based pages (Standard PDF parsers read text sequentially from left to right, which hopelessly scrambles multi-column reports and tables across columns. PyMuPDF extracts raw text blocks along with their spatial x_0,y_0,x_1,y_1 coordinate bounding boxes, which the pipeline uses to reconstruct reading order based on horizontal and vertical gutters. For scanned pages or image-embedded graphics, fallback OCR is triggered so no text layer is dropped), preserving tabular alignment and section headings while filtering out uninformative margin noise (Running geometric heuristics to discard repeated running headers, footers, page numbers, and disclaimer footnotes that would otherwise pollute the vector search index with duplicated noise).</p>
+
+      <p>To enable precise search without context loss, the extracted text passes through a section-aware chunker (Naive chunking by arbitrary character count slices sentences or paragraphs in half, destroying semantic meaning. A section-aware chunker detects structural boundaries—such as markdown # headers, font-size changes, or capitalized financial disclosure sections like "Item 1A: Risk Factors"—and uses them as hard split points, only splitting further if the section exceeds the model's context budget)—a module that splits documents into bounded passages of roughly 650 tokens (this strikes the empirical sweet spot for retrieval: large enough to capture the full context of a corporate greenhouse gas target, but small enough to fit within dense embedding model sequence lengths like 512–1024 tokens without truncation) while respecting natural section boundaries.</p>
+
+      <p>Crucially, every chunk is registered in a provenance ledger (In regulated industries like finance and marine insurance, black-box AI outputs are legally inadmissible. A provenance ledger is an immutable metadata record storing cryptographic SHA-256 file hashes, page indices, section titles, and physical coordinate bounding boxes for every single extracted text span. If an auditor asks "Where did this score come from?", the system can highlight the exact rectangular box on page 42 of the original PDF report), an auditable metadata system that maps each text snippet back to its exact source file hash, page number, section heading, table cell, and physical coordinate bounding box on the page, ensuring that every downstream AI score can be audited back to its exact location in the original PDF report.</p>
+
+      <p>To locate evidence for 15 standardized climate indicators (such as Scope 1/2/3 emissions targets and transition planning), <code>retriever.py</code> implements a hybrid retrieval system that fuses sparse lexical BM25 search (BM25 uses term frequency and inverse document frequency to find exact keyword matches. This is vital for specialized domain jargon, acronyms like "SBTi", "GHG Protocol", or exact numeric targets like "net zero by 2050", which dense embeddings often smooth out) with dense vector embeddings using all-MiniLM-L6-v2 (Dense bi-encoder embeddings map text into a continuous 384-dimensional mathematical space where semantic synonyms—like "decarbonization plan" and "transition roadmap"—cluster together even if they share zero identical words) and numeric heuristics (Rule-based filters that boost chunks containing explicit percentages, metric tons of CO_2 e, or future target years, filtering out generic fluff).</p>
+
+      <p>This hybrid RAG approach extracts and reranks candidate passages into versioned evidence packets (An evidence packet bundles the top-k retrieved chunks, their bounding-box metadata, the query indicator definition, and scoring criteria into a static JSON payload with a version timestamp, ensuring that model evaluations are 100% deterministic and reproducible across audit runs), which are then evaluated by an LLM-as-a-Judge framework running on a dedicated evaluation model. Rather than generating free-form prose (Open-ended prose invites hallucination, subjective phrasing, and makes statistical aggregation impossible), the LLM acts as a deterministic evaluator that assigns standardized diagnostic labels (Valid evidence, Partial evidence, False positive, Missing evidence, or Needs context) across all 5,880 evidence rows, providing a scalable machine-measurement surface without human hallucination (The model is constrained with strict rubrics, few-shot demonstration examples, temperature = 0, and JSON schema decoding, forcing it to select exclusively from a predefined enum).</p>
+
+      <p>To verify that the LLM judge evaluates genuine substance rather than superficial corporate rhetoric, CC-EE incorporates a blinded AI-polishing sensitivity experiment (LLMs suffer from well-documented "verbosity bias" and "style bias"—they tend to rate eloquent, beautifully written text higher than dry, bulleted text, even if the facts are identical. To prove the pipeline wasn't fooled by corporate greenwashing, the original text is run through an LLM to rewrite it in polished corporate prose <em>without</em> adding new facts, then fed back through the judge. The resulting 88.7% exact match shows the model was evaluating underlying empirical commitments rather than rhetorical style), where original disclosure passages are rewritten into neutral and polished styles without adding new facts; the high exact agreement confirms that the judge measures underlying evidence rather than prose fluency or "cheap talk."</p>
+
+      <p>Finally, through entity resolution (Raw PDFs often list subsidiaries or informal company names like "A.P. Møller - Mærsk A/S" vs "Maersk Line". Entity resolution normalizes these strings against authoritative financial registers, mapping them to official identifiers like GVKEY, CIK, or LEI), company names from PDF disclosures are mapped to standard financial database keys (GVKEY IDs in Compustat Global). Using econometric fixed effects (In statistical modeling, fixed effects isolate the true signal by controlling for confounding baseline variables—such as differences between industries like Shipping vs. Tech, differences between countries, or macro shocks across different years) to control for unobserved sector, country, and currency-year differences, the underlying regression models (documented in <code>main.tex</code> and the project <code>CCEE_GLOSSARY.md</code>) measure how machine-derived disclosure scores relate to financial metrics, demonstrating how modern AI engineering can transform unstructured narrative disclosures into rigorous empirical research.</p>
+    </div>
+
+    <footer class="art-foot">
+      <a class="back" href="../#work">← Back to all projects</a>
+      <span class="foot-links">
+        <a href="mailto:bekas.ioannis.1996@gmail.com">Get in touch</a>
+        <a href="../projects/mathimatikos.html">Next case study →</a>
+      </span>
+    </footer>
+  </div>
+</body>
+</html>

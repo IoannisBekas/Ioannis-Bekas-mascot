@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mathimatikos.xyz — How it works | Ioannis Bekas</title>
+  <meta name="description" content="An AI-native STEM reasoning engine. Multimodal OCR and RAG pipelines break a problem down into step-by-step, validated explanations with rendered maths and graphs, instead of one opaque answer.">
+  <meta name="color-scheme" content="light">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Mathimatikos.xyz — How it works">
+  <meta property="og:description" content="An AI-native STEM reasoning engine. Multimodal OCR and RAG pipelines break a problem down into step-by-step, validated explanations with rendered maths and graphs, instead of one opaque answer.">
+  <meta property="og:image" content="https://ioannisbekas.github.io/ioannis-Bekas-mascot/media/img/og.jpg">
+  <link rel="canonical" href="https://ioannisbekas.github.io/ioannis-Bekas-mascot/projects/mathimatikos.html">
+  <link rel="icon" type="image/png" href="../media/img/favicon.png">
+  <link rel="apple-touch-icon" href="../media/img/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="article.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="mark" href="../">ioannis.</a>
+      <a class="back" href="../#work">← All projects</a>
+    </header>
+
+    <div class="art-header">
+      <p class="kicker">AI Engineering · Case study · 2025</p>
+      <h1>Mathimatikos.xyz</h1>
+      <p class="art-lead">An AI-native STEM reasoning engine. Multimodal OCR and RAG pipelines break a problem down into step-by-step, validated explanations with rendered maths and graphs, instead of one opaque answer.</p>
+      <ul class="art-meta">
+        <li>Multimodal OCR</li>
+        <li>RAG</li>
+        <li>Streaming LLM</li>
+        <li>TypeScript</li>
+        <li>PostgreSQL</li>
+        <li>Redis queues</li>
+      </ul>
+    </div>
+
+    <div class="art-body">
+      <p>Mathimatikos initiates user interaction through a React and TypeScript frontend—a component-based user interface framework written in a statically typed dialect of JavaScript that catches code errors during build time (Strong static typing ensures that API request contracts, user authentication tokens, and mathematical data models are enforced across the entire client, preventing runtime undefined errors). The client supports four distinct input pathways: plain text, camera capture, uploaded photos, or canvas-based handwriting.</p>
+
+      <p>For image or handwriting inputs, the browser converts visual pixel data into a Base64-encoded string (Base64 converts raw binary 8-bit image data into a safe 64-character ASCII representation. This allows complex visual payloads to be sent directly inside standard JSON payloads over HTTP POST requests without requiring multipart form boundary management on lightweight serverless endpoints), which is a method of translating raw binary image bytes into plain ASCII text for safe transmission over standard HTTP network calls.</p>
+
+      <p>Before solving, this payload is sent to an Optical Character Recognition (OCR) endpoint where Computer Vision algorithms scan spatial pixel patterns to identify handwritten digits and mathematical symbols, normalizing them into LaTeX formulas (Normalization is critical because human math notation is ambiguous—a handwritten <code>x</code> can look like a multiplication sign ×, or a superscript exponent can look like an inline number. The OCR model resolves these ambiguities into strict LaTeX syntax like \frac{d}{dx} \int f(x) dx)—a standardized markup language designed specifically to render complex mathematical notation cleanly. The normalized LaTeX is sent back to the client for user review (This is a classic "Human-in-the-Loop" (HITL) pattern. Rather than passing possibly misread handwriting directly into a costly LLM solver, the app gives the user a zero-latency preview to verify and edit the extracted equation. This prevents cascading errors and saves unnecessary LLM token spend), allowing students and teachers to inspect and edit extracted text before triggering the main solution pipeline.</p>
+
+      <p>When a user submits a problem, the backend—built on Node.js and Express, which is a JavaScript runtime environment paired with a server web framework—first queries an in-memory Redis cache to check tier allowances and enforce rate-limiting (Relational databases like Postgres are too slow to query on every single keystroke or request. Redis operates in RAM with sub-millisecond latencies, making it ideal for sliding-window rate-limiting to prevent DDoS attacks and enforce subscription quotas), which tracks request counts in server RAM to prevent system overload.</p>
+
+      <p>To guarantee fairness, the system performs an atomic quota reservation (A race condition occurs when a user sends 5 concurrent requests simultaneously before the database can update their credit count. In Redis, an atomic decrement operation—like DECR or a Lua script—guarantees that the check-and-deduct happens as an indivisible step in single-threaded RAM. If the user only has 1 credit, only 1 request succeeds and the other 4 are immediately blocked) that immediately deducts one credit from the user's allowance in Redis.</p>
+
+      <p>The job is then placed into a process-local asynchronous execution queue (Decoupling request ingestion from processing. Web servers have limited worker threads; if 50 users submit complex problems simultaneously, synchronous requests will hold connections open, exhausting the thread pool and crashing the server. A queue buffers spikes and processes jobs at a controlled concurrency limit), which holds pending CPU and API tasks so heavy traffic does not crash the server. The queue enforces separate timers for wait timeouts (30 seconds) and active execution timeouts (60 seconds) (Defending against zombie tasks. A wait timeout kills requests that sat in the queue too long without being picked up; an execution timeout terminates upstream LLM calls that stalled or hung due to vendor network drops).</p>
+
+      <p>It also integrates a circuit breaker pattern (A vital production resiliency pattern. If Google's Gemini API starts failing repeatedly—e.g., throwing 503 Overloaded or 500 Server Errors—continuing to hammer the API causes cascading server crashes and wastes compute. The circuit breaker monitors failures: after 5 consecutive errors, the circuit "trips open" and immediately fails fast with a friendly user message without attempting to call the dead API. After a cooldown period, it enters a "half-open" state to test if the API recovered), a software safety mechanism that trips open to temporarily stop sending requests if five consecutive upstream network failures occur with Google Gemini. If any request fails or times out, an atomic quota refund transaction automatically restores the reserved credit to Redis, ensuring users are never penalized for technical glitches (Financial and transactional integrity in SaaS. Quota deduction must behave like a distributed transaction: commit on success, rollback on failure).</p>
+
+      <p>Once dequeued, the backend passes the problem text and image payloads to Google Gemini through its official Software Development Kit (SDK)—a pre-built code library provided by the vendor to simplify cloud API communication. Gemini operates as a Multimodal Large Language Model (LLM), which is a deep learning artificial intelligence trained to perform complex multi-step reasoning across both visual images and text. The request uses a low temperature setting of 0.1 (Temperature controls the softmax probability distribution over output tokens. A high temperature like 0.8 flattens the distribution, encouraging creative, diverse wording. A low temperature like 0.1 sharpens the distribution towards greedy decoding, forcing the model to consistently pick the highest-probability, mathematically deterministic token), an AI configuration parameter that minimizes randomness to force deterministic, logically consistent mathematical output rather than creative variations.</p>
+
+      <p>The request also enforces a strict JSON Schema (Constrained decoding. By feeding an OpenAPI/JSON schema to the Gemini API, the model's logits are physically masked during token generation so that it is grammatically impossible for the model to output anything other than valid JSON adhering to a predefined set of keys: steps, rationale, final_answer, and graph_data), which defines precise structural rules for data types, step titles, explanation text, and geometry parameters.</p>
+
+      <p>If the raw AI output contains subtle formatting flaws such as unescaped backslashes (In LaTeX, symbols are prefixed with backslashes like \frac or \sqrt. However, in standard JSON, a lone backslash \ is an illegal escape character that crashes <code>JSON.parse()</code>. A defensive JSON repair pipeline runs regex passes to double-escape raw backslashes \\frac before parsing), a defensive JSON repair pipeline sanitizes the text before validating it against a Zod runtime schema (TypeScript types only exist at compile time and disappear in production JavaScript. Zod performs runtime data validation, parsing the repaired JSON object and guaranteeing that types, arrays, and non-empty strings are strictly present before any client rendering occurs) to guarantee type safety before rendering.</p>
+
+      <p>As solution steps are produced, the Express backend sends real-time updates down to the client using Server-Sent Events (SSE) and HTTP response streaming (WebSockets provide full-duplex communication but require complex connection state management and custom ping/pong heartbeats. SSE is built on standard HTTP streaming, making it lightweight, firewall-friendly, and naturally unidirectional—perfect for streaming LLM tokens down to the browser while keeping client implementation simple), a persistent web connection that pushes text chunks to the browser immediately as they are generated.</p>
+
+      <p>On the client, KaTeX and MathJax—high-performance JavaScript typesetting engines—convert raw LaTeX strings into crisp vector math symbols on the page. For geometric problems, rather than loading heavy third-party graphing libraries, Mathimatikos runs a custom, lightweight, native Scalable Vector Graphics (SVG) renderer—an XML-based graphics format that stays infinitely sharp at any resolution without pixelation. The SVG renderer performs bounding box calculations (Calling browser DOM APIs like <code>getBBox()</code> on rendered SVG text elements to determine their exact width and height in pixels on the screen) to measure the exact pixel dimensions of text elements, preventing visual overlap. On narrow 390-pixel mobile screens, if inline labels would collide, the renderer automatically calculates label collision boundaries and repositions conflicting labels into a clean responsive legend below the graphic (Dynamic responsive UI geometry calculations to guarantee readability on constrained mobile viewports).</p>
+
+      <p>All persistent application data—such as user accounts, solved histories, quiz progress, and pricing metadata—is stored in a PostgreSQL relational database, an enterprise-grade database management system that organizes data into structured tables linked by relationships. Server interaction with the database is managed by Drizzle Object-Relational Mapping (ORM) (Unlike heavy ORMs like Prisma that run separate query engines, Drizzle is a zero-overhead, schema-first TypeScript ORM. It compiles directly into raw parameterized SQL queries, delivering bare-metal speed while providing end-to-end type safety between database tables and API endpoints), a type-safe TypeScript library that allows developers to read and write database records using native code instead of raw SQL queries.</p>
+
+      <p>Upon startup, an advisory-locked deployment routine (In modern cloud deployments, multiple container instances run behind a load balancer. If two containers boot up simultaneously and both attempt to run database migrations, they can corrupt the schema. A PostgreSQL advisory lock (<code>pg_advisory_lock</code>) acquires an application-level mutex in database memory, ensuring only the primary instance applies migrations while others wait safely) verifies database checksums and applies schema migrations safely.</p>
+
+      <p>User authentication is powered by Supabase Auth, which verifies user logins and issues JSON Web Tokens (JWTs)—signed digital security badges attached to every HTTP request. Database privacy is strictly enforced by PostgreSQL Row-Level Security (RLS) policies (Defense-in-depth security. Instead of relying solely on the application backend to write WHERE user_id = current_user, RLS compiles authorization rules directly into Postgres. Even if a backend bug accidentally omits a WHERE clause, Postgres refuses to return any row that does not match the JWT's <code>auth.uid()</code>, making cross-tenant data leakage mathematically impossible), which are security rules compiled directly into the database engine that automatically filter query results by comparing the request token's identity against table owners, preventing cross-tenant data leakage.</p>
+
+      <p>Platform monetization supports Free, Student Pro, and Teacher Pro subscription tiers processed through the Revolut Merchant API, a secure programming interface provided by the payment processor to accept credit cards and recurring payments. When a user initiates a checkout, the backend durably records a local recovery event in PostgreSQL before generating the public payment token. When a transaction completes, Revolut notifies the server by sending a Webhook, which is an automated real-time server-to-server HTTP callback.</p>
+
+      <p>To handle edge cases such as network drops or interrupted browser sessions, an advisory-locked scheduled background worker runs every 15 minutes. This worker uses advisory locks to ensure only one server instance executes the process at a time across multiple replicas, rotating scan windows to recover missed purchases and executing idempotent refund workflows (Idempotency means that executing the same operation 10 times produces the exact same result as executing it once. In payment and refund processing, if a network timeout occurs while refunding a user, the worker retries the refund using the same unique transaction idempotency key. The payment processor detects the key and confirms the existing refund without charging or refunding the user a second time) that safely retry without creating duplicate charges if payment fulfillment ever fails.</p>
+    </div>
+
+    <footer class="art-foot">
+      <a class="back" href="../#work">← Back to all projects</a>
+      <span class="foot-links">
+        <a href="https://mathimatikos.xyz" target="_blank" rel="noopener">Visit mathimatikos.xyz ↗</a>
+        <a href="mailto:bekas.ioannis.1996@gmail.com">Get in touch</a>
+      </span>
+    </footer>
+  </div>
+</body>
+</html>
