@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Humanitarian Dashboards — How it works | Ioannis Bekas</title>
+  <meta name="description" content="Production food-security, displacement and shock-monitoring pipelines for UN Women, feeding interactive maps and comparison tools that rank where support is needed first.">
+  <meta name="color-scheme" content="light">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Humanitarian Dashboards — How it works">
+  <meta property="og:description" content="Production food-security, displacement and shock-monitoring pipelines for UN Women, feeding interactive maps and comparison tools that rank where support is needed first.">
+  <meta property="og:image" content="https://ioannisbekas.github.io/ioannis-Bekas-mascot/media/img/og.jpg">
+  <link rel="canonical" href="https://ioannisbekas.github.io/ioannis-Bekas-mascot/projects/humanitarian-dashboards.html">
+  <link rel="icon" type="image/png" href="../media/img/favicon.png">
+  <link rel="apple-touch-icon" href="../media/img/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="article.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="mark" href="../">ioannis.</a>
+      <a class="back" href="../#work">← All projects</a>
+    </header>
+
+    <div class="art-header">
+      <p class="kicker">Data Engineering · Case study · 2024</p>
+      <h1>Humanitarian Dashboards</h1>
+      <p class="art-lead">Production food-security, displacement and shock-monitoring pipelines for UN Women, feeding interactive maps and comparison tools that rank where support is needed first.</p>
+      <ul class="art-meta">
+        <li>UN Women</li>
+        <li>Python</li>
+        <li>MapLibre</li>
+        <li>Chart.js</li>
+        <li>Data governance</li>
+      </ul>
+    </div>
+
+    <div class="art-body">
+      <p>As an Emergency Data Analyst for UN Women, the first layer of this work was review, not code: Gaza emergency site-sweep XLSForm materials, humanitarian stakeholder correspondence, and existing public Power BI outputs were assessed against data-sharing requirements to map which gender-responsive indicators and priority request fields were safe to expose publicly, and where a schema field itself carried protection-sensitive risk that meant it couldn't be published at all, however useful it might have been analytically. That review produced the reliability caveats that shape everything downstream — a dashboard for crisis-response analysis has to be honest about what its inputs can and can't support, not just visually polished.</p>
+
+      <p>The dashboards themselves are built with Python, JavaScript, Chart.js and MapLibre for the mapping layer, with automated validation scripts running against every data refresh rather than trusting a source feed to stay clean. Multilingual UI support, comparison tables across regions and time periods, interactive map layers, and methodology/source panels next to every chart are treated as first-class requirements, not polish added at the end — a humanitarian audience reading a dashboard needs to see where a number came from as readily as the number itself.</p>
+
+      <p>Underneath the UI sit reproducible pipelines that integrate nine public evidence layers — WFP/HDX price data, the IPC food-insecurity classification, World Development Indicators, FAOSTAT, UNHCR and OCHA FTS displacement and financial-tracking data, ILOSTAT labour statistics, IDMC/IOM displacement figures, and Global Findex financial-inclusion data — into a common structure for prioritising support across crisis-affected populations. On top of that data, a documented Shock Exposure Index defines how component indicators are scored and weighted, how missing data is treated rather than silently dropped, before/after food-price screening around a shock event, and gender and labour vulnerability indicators, together with explicit interpretation rules that keep the index read as prioritisation evidence rather than a causal claim about why a shock happened.</p>
+
+      <p>Because this work supports partners who don't all use the same tools, delivery isn't a single dashboard link: outputs are packaged as handover-ready Excel, CSV, JSON, Word, PDF, PowerPoint and static-web artifacts, with source inventories and data dictionaries so a colleague picking up the workbook later knows exactly where each column came from. Governance sits alongside the outputs rather than after them — source-of-truth documentation, output manifests, data-retention rules, dry-run audit scripts, and workspace health reports are part of the same delivery, aimed at keeping the work reproducible and accountable as it's handed off across a humanitarian programme.</p>
+    </div>
+
+    <footer class="art-foot">
+      <a class="back" href="../#work">← Back to all projects</a>
+      <span class="foot-links">
+        <a href="mailto:bekas.ioannis.1996@gmail.com">Get in touch</a>
+      </span>
+    </footer>
+  </div>
+</body>
+</html>

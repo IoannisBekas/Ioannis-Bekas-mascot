@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Power BI Case Studies — How they're built | Ioannis Bekas</title>
+  <meta name="description" content="Independent portfolio dashboards built on synthetic or representative demo data, showing how complex reporting questions become focused, usable Power BI experiences.">
+  <meta name="color-scheme" content="light">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Power BI Case Studies — How they're built">
+  <meta property="og:description" content="Independent portfolio dashboards built on synthetic or representative demo data, showing how complex reporting questions become focused, usable Power BI experiences.">
+  <meta property="og:image" content="https://ioannisbekas.github.io/ioannis-Bekas-mascot/media/img/og.jpg">
+  <link rel="canonical" href="https://ioannisbekas.github.io/ioannis-Bekas-mascot/projects/power-bi-case-studies.html">
+  <link rel="icon" type="image/png" href="../media/img/favicon.png">
+  <link rel="apple-touch-icon" href="../media/img/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="article.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="mark" href="../">ioannis.</a>
+      <a class="back" href="../#work">← All projects</a>
+    </header>
+
+    <div class="art-header">
+      <p class="kicker">Business Intelligence · Case study · 2025</p>
+      <h1>Power BI Case Studies</h1>
+      <p class="art-lead">Four independent Power BI builds: three synthetic-data demonstrations showing how a reporting need at that kind of organisation could be structured, and one — for Signal Maritime — built on real, anonymized client data.</p>
+      <ul class="art-meta">
+        <li>Power BI</li>
+        <li>DAX</li>
+        <li>Data modelling</li>
+        <li>Filter design</li>
+      </ul>
+    </div>
+
+    <div class="art-body">
+      <p>Three of the four dashboards below are independent demonstrations: they weren't commissioned by the organisations they're styled after, and they run on synthetic or illustrative data. The point of those isn't the dataset; it's the funnel, the drill-through, the filter model and the way a page answers a specific question without burying it in a wall of charts. The fourth, for Signal Maritime, is different and is labelled as such below: it's built on real, anonymized operational data from an actual maritime analytics engagement, not a demo styled after a hypothetical client.</p>
+
+      <p><b>IFC-style talent analytics.</b> Styled after an internal HR platform for the International Finance Corporation, the dashboard is built around the recruitment funnel — Applied → Screened → Interview → Hired — with global filters by job location, application date range and source channel (LinkedIn, careers site, job boards, referrals). One page gives the funnel-level view: gender and education distribution, internal-candidate and relocation breakdowns, and a world map of applicant geography. A second page drills through by Application ID into individual candidate detail — country, education, experience, salary, recruiter and hiring-manager feedback — so a hiring manager can move from "how's the funnel doing this quarter" to "what happened with this specific candidate" without switching tools. The underlying data is fully synthetic.</p>
+
+      <p><b>UNICEF-style audit compliance.</b> Styled after the reporting process of UNICEF's Office of Internal Audit and Investigations, this one is built entirely on mock data across four pages: a home page introducing audit results by category for country offices, mapped on a global view; an audit-overview page filterable by year, implementation status and observation group, with expenditure and status-distribution visuals; a risk map showing audit status by country with a table that stays in sync with the map's filters; and an implementation tracker that drills into a single country office to show its audit history and how many recommendations were made, implemented, or missed over time. The four-page split mirrors how an actual audit-compliance review moves from a global summary down to one office's track record.</p>
+
+      <p><b>IAEA-style water science.</b> Styled after the Global Water Analysis Laboratory (GloWAL) Network coordinated by the IAEA, this dashboard visualises the kind of data that network's member laboratories actually produce: isotope concentration, temperature and pH readings across water types and regions. Filters for region, country, year, water type, isotope type and measurement accuracy sit above time-series charts of average isotope concentration and temperature by date, with a live average pH reading as a headline KPI. The data reflects the typical structure of real laboratory measurements rather than being pulled from an actual GloWAL feed.</p>
+
+      <p><b>Signal Maritime — vessel cargo overview.</b> Unlike the three above, this one runs on real, anonymized operational data from an actual maritime analytics engagement, built for ship operators, charterers and analysts to monitor near real-time cargo activity. One page breaks cargo down by vessel class (Capesize, Panamax) and commodity (iron ore, soybeans and others), cross-tabulates it by activity (operating vs waiting) and purpose (discharge vs load), and surfaces the week-over-week percentage change in active IMO-registered vessel counts; a second page charts that IMO trend over time to flag operational surges or slowdowns in shipping activity.</p>
+
+      <p>Across all four, the design choices are the same ones that matter in a real engagement, whether the data behind them is synthetic or not: a filter model that lets a non-technical reader narrow in without needing to understand the data model underneath, KPI cards that answer the "so what" before the detail, and at least one drill-through path from a summary view down to a single record, because that's usually the question a stakeholder actually asks in the meeting.</p>
+    </div>
+
+    <footer class="art-foot">
+      <a class="back" href="../#work">← Back to all projects</a>
+      <span class="foot-links">
+        <a href="https://github.com/IoannisBekas/PowerBI-Dashboards" target="_blank" rel="noopener">All dashboards on GitHub ↗</a>
+        <a href="mailto:bekas.ioannis.1996@gmail.com">Get in touch</a>
+      </span>
+    </footer>
+  </div>
+</body>
+</html>

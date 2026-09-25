@@ -262,10 +262,11 @@ main { position: relative; z-index: 1; }
 .shots {
   list-style: none;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
   margin: 16px 0 4px;
   padding: 0;
+  max-width: 640px;
 }
 .shots a { display: block; text-decoration: none; font-size: 13px; font-weight: 700; color: var(--accent); }
 .shots img {
